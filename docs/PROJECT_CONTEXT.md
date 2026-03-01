@@ -1,33 +1,40 @@
-<!-- doc-version: 4.3.0 -->
-# Project Context - <PROJECT_NAME>
+<!-- doc-version: 0.1.0 -->
+# Project Context - dev-spawner
 
 ## Vision
-Describe the long-term goal for this project. What problem does it solve and why does it matter?
+Automate the creation of development user environments on a shared VM, so new users (family members) get a fully working dev setup identical to the reference environment in minutes, not hours.
 
 ## Objectives
-List the primary objectives or deliverables. Include success criteria where possible.
+1. Single script to provision a new user with all dev tooling
+2. Idempotent: safe to re-run on existing users (updates without destroying)
+3. Each user gets isolated home, projects, config, and credentials
+4. Shared system resources (Docker daemon, Go, system packages) used efficiently
+5. Documented decisions for every design choice
 
 ## Stakeholders
-- Product owner: <Name>
-- Technical owner: <Name>
-- Primary users: <Audience>
-- Additional stakeholders: <List>
+- Technical owner: Carlos de la Lama-Noriega
+- Primary users: Laura, Oscar (family members)
+- Environment: dev-vm (10.0.0.110, Ubuntu 22.04, 16GB RAM, 2 vCPU)
 
 ## Architectural Overview
-Summarize the high-level architecture or system design. Use diagrams (link or reference) if helpful.
+A provisioning script (bash) that:
+1. Creates a Linux user with proper groups
+2. Copies/generates dotfiles (.bashrc, .profile, tmux.conf)
+3. Installs per-user tools (NVM + Node, Claude Code)
+4. Sets up directory structure (~/src/, ~/runtime/)
+5. Configures git, SSH keys, and basic Claude Code config
 
-## Key Components
-| Component | Purpose | Owner | Notes |
-|-----------|---------|-------|-------|
-| <Example> | <Why it exists> | <Owner> | <Details> |
+Shared system-level tools (Docker, Go, Python) are NOT installed per-user -- they're already available system-wide.
 
-## Current Status (<YYYY-MM-DD>)
-Provide a snapshot of the project's current state. Highlight completed milestones, ongoing work, and known blockers.
+## Current Status (2026-03-01)
+Project just created. Brainstorming phase -- deciding on key design choices before writing code.
 
 ## Upcoming Milestones
-1. <Milestone description> - <Target date>
-2. <Milestone description> - <Target date>
-3. <Milestone description> - <Target date>
+1. Brainstorming: resolve all open design decisions - 2026-03-01
+2. v0.1.0: Core provisioning script - TBD
+3. v0.2.0: Idempotent updates + de-provisioning - TBD
 
 ## References
-Link to any external documentation, specifications, or resources relevant to the project.
+- Infrastructure docs: ~/src/home-infra/docs/
+- Reference environment: cdelalama@dev-vm user setup
+- Template: [LLM-DocKit](https://github.com/cdelalama/LLM-DocKit)

@@ -1,66 +1,89 @@
-<!-- doc-version: 4.3.0 -->
-# <PROJECT_NAME> Architecture (Optional)
+<!-- doc-version: 0.1.0 -->
+# dev-spawner Architecture
 
-> Version: 0.1.0-draft
-> Last Updated: <YYYY-MM-DD>
-> Status: Design | Implementing | Stable
-> Authors: <Names>
+> Version: 0.1.0
+> Last Updated: 2026-03-01
+> Status: Design
+> Authors: Carlos de la Lama-Noriega
 
 ## Overview
 
-Describe the system at a high level:
-- What it is
-- Who uses it
-- Where it runs
-- What the primary inputs/outputs are
+dev-spawner is a bash-based provisioning tool that creates development user environments on a shared Ubuntu VM. It runs on dev-vm (10.0.0.110) and creates Linux users with a fully configured development setup.
+
+- **What it is**: A provisioning script + dotfile templates
+- **Who uses it**: System admin (Carlos) to create environments for family members
+- **Where it runs**: dev-vm (Ubuntu 22.04, 16GB RAM, 2 vCPU)
+- **Primary inputs**: Username, optional config flags
+- **Primary outputs**: A fully configured Linux user with dev tools
 
 ## Non-negotiables
 
-- <Invariant / constraint>
-- <Invariant / constraint>
+- Must run on Ubuntu 22.04 with bash
+- Must not break existing users or services
+- Must be idempotent (safe to re-run)
+- Zero external dependencies beyond what's already on dev-vm
 
 ## High-Level Architecture
 
-Layers/components (example):
-1. Core domain logic (shared)
-2. Runners/adapters (CLI/API/worker)
-3. UI/clients
+```
+spawn-user.sh (main entry point)
+  |
+  +-- create Linux user + groups
+  +-- install dotfiles from templates/
+  |     +-- .bashrc
+  |     +-- .profile
+  |     +-- .tmux.conf
+  |     +-- .gitconfig
+  +-- install NVM + Node.js
+  +-- install Claude Code
+  +-- setup Claude Code config from templates/
+  |     +-- .claude/CLAUDE.md
+  |     +-- .claude/settings.json
+  +-- create directory structure (~/src, ~/runtime)
+  +-- generate SSH key
+  +-- [optional modules]
+        +-- ollama env config
+        +-- doppler setup
+        +-- additional tools
+```
 
 ## Key Flows
 
-### Flow 1: <Name>
-1. <Step>
-2. <Step>
+### Flow 1: New user provisioning
+1. Admin runs `sudo ./scripts/spawn-user.sh <username>`
+2. Script creates Linux user, adds to docker group
+3. Copies/generates dotfiles from templates/
+4. Installs NVM + Node as the new user
+5. Installs Claude Code as the new user
+6. Creates directory structure
+7. Generates SSH key
+8. Reports summary
 
-### Flow 2: <Name>
-1. <Step>
-2. <Step>
-
-## Contracts
-
-Define the stable contracts that other components depend on:
-- APIs (OpenAPI / gRPC / etc.)
-- Event schemas (JSON events, message bus payloads)
-- File formats (artifact schemas, CSV conventions)
-
-Link to `docs/operations/API_CONTRACT.md` if applicable.
+### Flow 2: Update existing user (idempotent)
+1. Admin re-runs `sudo ./scripts/spawn-user.sh <username>`
+2. Script detects user exists
+3. Updates dotfiles (preserving user customizations?)
+4. Updates tools if needed (NVM, Node, Claude Code)
+5. Reports what changed
 
 ## Storage & Data Layout
 
-Where data lives and why:
-- On-disk layout: <paths>
-- Database tables: <if any>
-- Retention/cleanup policy: <if any>
+```
+/home/<username>/
+  +-- .bashrc, .profile, .tmux.conf     (from templates)
+  +-- .claude/                           (Claude Code config)
+  +-- .nvm/                              (Node Version Manager)
+  +-- .ssh/                              (SSH keys)
+  +-- .gitconfig                         (git config)
+  +-- src/                               (project repositories)
+  +-- runtime/                           (docker compose configs)
+  +-- .local/bin/                        (user scripts)
+```
 
 ## Security & Privacy Notes
 
-- AuthN/AuthZ: <if any>
-- Secrets management: <where>
-- Data sensitivity: <PII considerations>
-
-## Roadmap
-
-Phases/milestones in order:
-1. <Phase 0> - <goal>
-2. <Phase 1> - <goal>
-
+- Each user's home is 750 (no cross-user access)
+- SSH keys are generated per user
+- Claude Code API credentials are per user
+- Docker group membership grants root-equivalent access (acceptable for home lab)
+- No secrets are stored in the repo (API keys entered interactively or via env)

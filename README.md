@@ -1,28 +1,26 @@
-<!-- doc-version: 4.3.0 -->
-# <PROJECT_NAME>
+<!-- doc-version: 0.1.0 -->
+# dev-spawner
 
-<One-line description of what this project does.>
+Automated provisioning of development user environments on dev-vm.
 
 **Version:** see [VERSION](VERSION) | [CHANGELOG](CHANGELOG.md)
 
 ## Overview
 
-<2-3 paragraphs describing the project, the problem it solves, and who it is for.>
+dev-spawner creates and manages development environments for multiple users on a shared Ubuntu VM. It replicates the core development tooling (Node.js, Docker, Claude Code, tmux, git) into isolated user home directories, so each person gets a fully functional dev setup without interfering with others.
+
+Built for a family home lab where the main dev-vm (Ubuntu 22.04, 16GB RAM, 2 vCPU) serves as the shared development machine.
 
 ## Quick Start
 
 ### Prerequisites
-- <Prerequisite 1>
-- <Prerequisite 2>
-
-### Installation
-```
-<installation commands>
-```
+- Ubuntu 22.04+ VM with sudo access
+- Existing working dev environment (the "reference" user)
 
 ### Usage
-```
-<basic usage example>
+```bash
+# Create a new dev user
+sudo ./scripts/spawn-user.sh <username>
 ```
 
 ## Documentation
@@ -32,14 +30,7 @@
 | [LLM_START_HERE.md](LLM_START_HERE.md) | Entry point for LLM contributors |
 | [docs/PROJECT_CONTEXT.md](docs/PROJECT_CONTEXT.md) | Vision, architecture, current state |
 | [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | Technical architecture details |
-| [docs/STRUCTURE.md](docs/STRUCTURE.md) | Repository layout |
-| [docs/VERSIONING_RULES.md](docs/VERSIONING_RULES.md) | Version management policy |
 | [docs/llm/HANDOFF.md](docs/llm/HANDOFF.md) | Current work state |
-| [HOW_TO_USE.md](HOW_TO_USE.md) | Scaffold setup guide and sync tool docs |
-
-## Contributing
-
-<Contributing guidelines or link to CONTRIBUTING.md.>
 
 ## License
 
