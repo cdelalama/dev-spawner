@@ -102,3 +102,28 @@ Dotfiles are only created if they don't exist (idempotent). The `--update-templa
 - Protects user customizations by default
 - Backup before overwrite enables easy rollback
 - Single script handles both create and update flows
+
+---
+
+## D-007 - Automatic verify + diagnose post-provisioning
+
+**Status:** accepted (2026-03-01)
+
+### Decision
+After provisioning, spawn-user.sh automatically runs 12 bash verification checks. If any check fails, it launches Claude Code CLI (claude -p) as the admin user to diagnose failures and suggest fixes.
+
+### Context
+Need to validate that provisioning actually worked. Options: manual testing, bash checks, or AI-assisted diagnosis.
+
+### Rationale
+- Bash verify is fast (~2s) and catches obvious issues (missing tools, wrong permissions)
+- Claude Code CLI runs in print mode (-p), uses the admin's existing subscription (no extra cost)
+- Diagnosis only triggers on failure (zero overhead on happy path)
+- Claude Code runs read-only (allowed tools: Bash, Read, Glob, Grep) - cannot modify anything
+- Two-tier approach: fast bash for detection, smart AI for root cause analysis
+
+### Implications
+- Requires Claude Code installed and authenticated for the admin user ($SUDO_USER)
+- If Claude Code is unavailable, diagnosis is skipped with a warning (non-fatal)
+- Diagnosis adds 10-30s when triggered (API round-trip)
+- No session persistence (--no-session-persistence flag)

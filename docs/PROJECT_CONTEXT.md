@@ -27,7 +27,7 @@ A provisioning script (bash) that:
 Shared system-level tools (Docker, Go, Python) are NOT installed per-user -- they're already available system-wide.
 
 ## Current Status (2026-03-01)
-v0.1.0 implemented. spawn-user.sh and despawn-user.sh complete with all templates. Ready for testing with real users.
+v0.1.0 implemented and tested with testuser. spawn-user.sh includes automatic verify (bash) + diagnose (Claude Code CLI). Ready for provisioning real users (Laura, Oscar).
 
 ## Upcoming Milestones
 1. ~~Brainstorming: resolve all open design decisions~~ - DONE 2026-03-01

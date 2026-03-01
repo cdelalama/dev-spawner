@@ -19,7 +19,7 @@ dev-spawner/
 |     +-- README.md
 |     +-- REVIEWS.md
 +-- scripts/
-|  +-- spawn-user.sh             (main provisioning script)
+|  +-- spawn-user.sh             (provisioning + verify + diagnose)
 |  +-- despawn-user.sh           (user removal script)
 +-- templates/
 |  +-- bashrc.template           (user .bashrc)
@@ -42,7 +42,7 @@ dev-spawner/
 |------|---------|-------|
 | docs/ | Project documentation | Required |
 | docs/llm/ | Handoff and history for LLM contributors | Required |
-| scripts/ | Provisioning and teardown scripts | Core of the project |
+| scripts/ | Provisioning (with verify+diagnose) and teardown scripts | Core of the project |
 | templates/ | Dotfile and config templates | Copied/rendered per user |
 | templates/claude/ | Claude Code configuration templates | Includes base + sounds variants |
 | src/ | Future application code | Currently empty |

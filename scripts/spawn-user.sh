@@ -109,17 +109,17 @@ install_file() {
 
     if [ -f "$dest" ] && [ "$UPDATE_TEMPLATES" != "true" ]; then
         log_skipped "$dest (already exists)"
-        ((COUNT_SKIPPED++))
+        COUNT_SKIPPED=$((COUNT_SKIPPED + 1))
         return
     fi
 
     if [ -f "$dest" ] && [ "$UPDATE_TEMPLATES" = "true" ]; then
         cp "$dest" "${dest}.bak.${TIMESTAMP}"
         log_updated "$dest (backup: ${dest}.bak.${TIMESTAMP})"
-        ((COUNT_UPDATED++))
+        COUNT_UPDATED=$((COUNT_UPDATED + 1))
     else
         log_created "$dest"
-        ((COUNT_CREATED++))
+        COUNT_CREATED=$((COUNT_CREATED + 1))
     fi
 
     cp "$src" "$dest"
@@ -200,22 +200,22 @@ step_create_user() {
 
     if id "$USERNAME" >/dev/null 2>&1; then
         log_skipped "User '$USERNAME' already exists"
-        ((COUNT_SKIPPED++))
+        COUNT_SKIPPED=$((COUNT_SKIPPED + 1))
     else
         useradd -m -s /bin/bash "$USERNAME"
         log_created "User '$USERNAME'"
-        ((COUNT_CREATED++))
+        COUNT_CREATED=$((COUNT_CREATED + 1))
     fi
 }
 
 step_docker_group() {
     if id -nG "$USERNAME" | grep -qw docker; then
         log_skipped "User '$USERNAME' already in docker group"
-        ((COUNT_SKIPPED++))
+        COUNT_SKIPPED=$((COUNT_SKIPPED + 1))
     else
         usermod -aG docker "$USERNAME"
         log_created "Added '$USERNAME' to docker group"
-        ((COUNT_CREATED++))
+        COUNT_CREATED=$((COUNT_CREATED + 1))
     fi
 }
 
@@ -236,24 +236,24 @@ step_install_dotfiles() {
     # gitconfig (needs placeholder substitution)
     if [ -f "$home/.gitconfig" ] && [ "$UPDATE_TEMPLATES" != "true" ]; then
         log_skipped "$home/.gitconfig (already exists)"
-        ((COUNT_SKIPPED++))
+        COUNT_SKIPPED=$((COUNT_SKIPPED + 1))
     else
         if [ -z "$GIT_NAME" ] || [ -z "$GIT_EMAIL" ]; then
             if [ ! -f "$home/.gitconfig" ]; then
                 log_warning ".gitconfig requires --git-name and --git-email on first run"
-                ((COUNT_WARNINGS++))
+                COUNT_WARNINGS=$((COUNT_WARNINGS + 1))
             else
                 log_skipped "$home/.gitconfig (no --git-name/--git-email provided, keeping existing)"
-                ((COUNT_SKIPPED++))
+                COUNT_SKIPPED=$((COUNT_SKIPPED + 1))
             fi
         else
             if [ -f "$home/.gitconfig" ] && [ "$UPDATE_TEMPLATES" = "true" ]; then
                 cp "$home/.gitconfig" "$home/.gitconfig.bak.${TIMESTAMP}"
                 log_updated "$home/.gitconfig (backup created)"
-                ((COUNT_UPDATED++))
+                COUNT_UPDATED=$((COUNT_UPDATED + 1))
             else
                 log_created "$home/.gitconfig"
-                ((COUNT_CREATED++))
+                COUNT_CREATED=$((COUNT_CREATED + 1))
             fi
             sed -e "s/{{GIT_NAME}}/$GIT_NAME/g" \
                 -e "s/{{GIT_EMAIL}}/$GIT_EMAIL/g" \
@@ -271,29 +271,29 @@ step_install_nvm_node() {
 
     if [ -d "$home/.nvm" ]; then
         log_skipped "NVM already installed at $home/.nvm/"
-        ((COUNT_SKIPPED++))
+        COUNT_SKIPPED=$((COUNT_SKIPPED + 1))
     else
         echo "  Installing NVM ${NVM_VERSION}..."
         su - "$USERNAME" -c "curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/${NVM_VERSION}/install.sh | bash" >/dev/null 2>&1
         log_created "NVM ${NVM_VERSION}"
-        ((COUNT_CREATED++))
+        COUNT_CREATED=$((COUNT_CREATED + 1))
 
         echo "  Installing Node.js LTS..."
         su - "$USERNAME" -c 'bash -c "source \"\$HOME/.nvm/nvm.sh\" && nvm install --lts"' >/dev/null 2>&1
         log_created "Node.js LTS"
-        ((COUNT_CREATED++))
+        COUNT_CREATED=$((COUNT_CREATED + 1))
     fi
 }
 
 step_install_pnpm() {
     if run_as_user "$USERNAME" "command -v pnpm" >/dev/null 2>&1; then
         log_skipped "pnpm already installed"
-        ((COUNT_SKIPPED++))
+        COUNT_SKIPPED=$((COUNT_SKIPPED + 1))
     else
         echo "  Installing pnpm..."
         run_as_user "$USERNAME" "npm install -g pnpm" >/dev/null 2>&1
         log_created "pnpm"
-        ((COUNT_CREATED++))
+        COUNT_CREATED=$((COUNT_CREATED + 1))
     fi
 }
 
@@ -302,12 +302,12 @@ step_install_claude() {
 
     if run_as_user "$USERNAME" "command -v claude" >/dev/null 2>&1; then
         log_skipped "Claude Code already installed"
-        ((COUNT_SKIPPED++))
+        COUNT_SKIPPED=$((COUNT_SKIPPED + 1))
     else
         echo "  Installing Claude Code (@anthropic-ai/claude-code)..."
         run_as_user "$USERNAME" "npm install -g @anthropic-ai/claude-code" >/dev/null 2>&1
         log_created "Claude Code"
-        ((COUNT_CREATED++))
+        COUNT_CREATED=$((COUNT_CREATED + 1))
     fi
 }
 
@@ -336,7 +336,7 @@ step_claude_config() {
         chown -R "$USERNAME:$USERNAME" "$claude_dir/sounds"
         chmod 755 "$claude_dir/sounds/"*.sh
         log_created "Claude Code sound hooks"
-        ((COUNT_CREATED++))
+        COUNT_CREATED=$((COUNT_CREATED + 1))
     else
         install_file "$TEMPLATES_DIR/claude/settings.json.template" "$claude_dir/settings.json" "$USERNAME" 644
     fi
@@ -349,19 +349,19 @@ step_claude_config() {
 
         if [ -z "$admin_user" ]; then
             log_warning "--copy-admin-credentials: cannot determine admin user (\$SUDO_USER is empty)"
-            ((COUNT_WARNINGS++))
+            COUNT_WARNINGS=$((COUNT_WARNINGS + 1))
         elif [ ! -f "$admin_creds" ]; then
             log_warning "--copy-admin-credentials: $admin_creds not found"
-            ((COUNT_WARNINGS++))
+            COUNT_WARNINGS=$((COUNT_WARNINGS + 1))
         elif [ -f "$dest_creds" ]; then
             log_skipped "$dest_creds (already exists, not overwriting credentials)"
-            ((COUNT_SKIPPED++))
+            COUNT_SKIPPED=$((COUNT_SKIPPED + 1))
         else
             cp "$admin_creds" "$dest_creds"
             chown "$USERNAME:$USERNAME" "$dest_creds"
             chmod 600 "$dest_creds"
             log_created "$dest_creds (copied from $admin_user)"
-            ((COUNT_CREATED++))
+            COUNT_CREATED=$((COUNT_CREATED + 1))
         fi
     fi
 }
@@ -375,12 +375,12 @@ step_directories() {
     for dir in "${dirs[@]}"; do
         if [ -d "$dir" ]; then
             log_skipped "$dir/ (already exists)"
-            ((COUNT_SKIPPED++))
+            COUNT_SKIPPED=$((COUNT_SKIPPED + 1))
         else
             mkdir -p "$dir"
             chown "$USERNAME:$USERNAME" "$dir"
             log_created "$dir/"
-            ((COUNT_CREATED++))
+            COUNT_CREATED=$((COUNT_CREATED + 1))
         fi
     done
 
@@ -397,7 +397,7 @@ step_ssh_key() {
 
     if [ -f "$key_file" ]; then
         log_skipped "SSH key already exists at $key_file"
-        ((COUNT_SKIPPED++))
+        COUNT_SKIPPED=$((COUNT_SKIPPED + 1))
     else
         mkdir -p "$ssh_dir"
         chown "$USERNAME:$USERNAME" "$ssh_dir"
@@ -408,7 +408,7 @@ step_ssh_key() {
         chmod 600 "$key_file"
         chmod 644 "$key_file.pub"
         log_created "SSH key ($key_file)"
-        ((COUNT_CREATED++))
+        COUNT_CREATED=$((COUNT_CREATED + 1))
 
         echo ""
         echo "  Public key (copy to other machines as needed):"
@@ -428,13 +428,13 @@ step_ollama() {
 
     if grep -q "OLLAMA_HOST" "$bashrc" 2>/dev/null; then
         log_skipped "OLLAMA_HOST already in .bashrc"
-        ((COUNT_SKIPPED++))
+        COUNT_SKIPPED=$((COUNT_SKIPPED + 1))
     else
         echo "" >> "$bashrc"
         echo "# Ollama (shared service)" >> "$bashrc"
         echo "export OLLAMA_HOST=\"${OLLAMA_HOST}\"" >> "$bashrc"
         log_created "OLLAMA_HOST=${OLLAMA_HOST} added to .bashrc"
-        ((COUNT_CREATED++))
+        COUNT_CREATED=$((COUNT_CREATED + 1))
     fi
 }
 
@@ -449,7 +449,178 @@ step_permissions() {
     [ -f "$home/.claude/.credentials.json" ] && chmod 600 "$home/.claude/.credentials.json"
 
     log_skipped "Permissions verified"
-    ((COUNT_SKIPPED++))
+    COUNT_SKIPPED=$((COUNT_SKIPPED + 1))
+}
+
+step_verify() {
+    log_section "Verification"
+
+    local home="/home/$USERNAME"
+    local failures=()
+
+    # Check node
+    if run_as_user "$USERNAME" "node --version" >/dev/null 2>&1; then
+        local node_ver
+        node_ver=$(run_as_user "$USERNAME" "node --version" 2>/dev/null)
+        echo -e "  ${GREEN}[PASS]${NC} Node.js $node_ver"
+    else
+        echo -e "  ${RED}[FAIL]${NC} Node.js not available"
+        failures+=("node")
+    fi
+
+    # Check npm
+    if run_as_user "$USERNAME" "npm --version" >/dev/null 2>&1; then
+        echo -e "  ${GREEN}[PASS]${NC} npm $(run_as_user "$USERNAME" "npm --version" 2>/dev/null)"
+    else
+        echo -e "  ${RED}[FAIL]${NC} npm not available"
+        failures+=("npm")
+    fi
+
+    # Check pnpm
+    if run_as_user "$USERNAME" "pnpm --version" >/dev/null 2>&1; then
+        echo -e "  ${GREEN}[PASS]${NC} pnpm $(run_as_user "$USERNAME" "pnpm --version" 2>/dev/null)"
+    else
+        echo -e "  ${RED}[FAIL]${NC} pnpm not available"
+        failures+=("pnpm")
+    fi
+
+    # Check claude
+    if run_as_user "$USERNAME" "claude --version" >/dev/null 2>&1; then
+        echo -e "  ${GREEN}[PASS]${NC} Claude Code $(run_as_user "$USERNAME" "claude --version" 2>/dev/null)"
+    else
+        echo -e "  ${RED}[FAIL]${NC} Claude Code not available"
+        failures+=("claude")
+    fi
+
+    # Check git config
+    if [ -f "$home/.gitconfig" ]; then
+        local git_name
+        git_name=$(run_as_user "$USERNAME" "git config user.name" 2>/dev/null || true)
+        if [ -n "$git_name" ]; then
+            echo -e "  ${GREEN}[PASS]${NC} git config (user: $git_name)"
+        else
+            echo -e "  ${RED}[FAIL]${NC} git config exists but user.name is empty"
+            failures+=("git-config")
+        fi
+    else
+        echo -e "  ${RED}[FAIL]${NC} .gitconfig missing"
+        failures+=("git-config")
+    fi
+
+    # Check tmux
+    if [ -f "$home/.tmux.conf" ]; then
+        echo -e "  ${GREEN}[PASS]${NC} tmux config"
+    else
+        echo -e "  ${RED}[FAIL]${NC} .tmux.conf missing"
+        failures+=("tmux-config")
+    fi
+
+    # Check docker group
+    if id -nG "$USERNAME" 2>/dev/null | grep -qw docker; then
+        echo -e "  ${GREEN}[PASS]${NC} docker group"
+    else
+        echo -e "  ${RED}[FAIL]${NC} not in docker group"
+        failures+=("docker-group")
+    fi
+
+    # Check directories
+    for dir in "$home/src" "$home/runtime" "$home/.local/bin"; do
+        if [ -d "$dir" ]; then
+            echo -e "  ${GREEN}[PASS]${NC} $dir/"
+        else
+            echo -e "  ${RED}[FAIL]${NC} $dir/ missing"
+            failures+=("dir:$dir")
+        fi
+    done
+
+    # Check SSH key
+    if [ -f "$home/.ssh/id_ed25519" ]; then
+        echo -e "  ${GREEN}[PASS]${NC} SSH key"
+    else
+        echo -e "  ${RED}[FAIL]${NC} SSH key missing"
+        failures+=("ssh-key")
+    fi
+
+    # Check Claude config
+    if [ -f "$home/.claude/CLAUDE.md" ]; then
+        echo -e "  ${GREEN}[PASS]${NC} Claude CLAUDE.md"
+    else
+        echo -e "  ${RED}[FAIL]${NC} Claude CLAUDE.md missing"
+        failures+=("claude-config")
+    fi
+
+    # Check permissions
+    local home_perms
+    home_perms=$(stat -c "%a" "$home" 2>/dev/null)
+    if [ "$home_perms" = "750" ]; then
+        echo -e "  ${GREEN}[PASS]${NC} home permissions ($home_perms)"
+    else
+        echo -e "  ${RED}[FAIL]${NC} home permissions ($home_perms, expected 750)"
+        failures+=("permissions")
+    fi
+
+    # Store failures for diagnose step
+    VERIFY_FAILURES=("${failures[@]}")
+
+    echo ""
+    if [ ${#failures[@]} -eq 0 ]; then
+        echo -e "  ${GREEN}All checks passed.${NC}"
+    else
+        echo -e "  ${RED}${#failures[@]} check(s) failed: ${failures[*]}${NC}"
+    fi
+}
+
+step_diagnose() {
+    # Only run if verify found failures
+    if [ ${#VERIFY_FAILURES[@]} -eq 0 ]; then
+        return
+    fi
+
+    log_section "Diagnosis (Claude Code CLI)"
+
+    # Check that claude is available to the admin (the one running sudo)
+    local admin_user="${SUDO_USER:-}"
+    if [ -z "$admin_user" ]; then
+        log_warning "Cannot run diagnosis: \$SUDO_USER is empty"
+        COUNT_WARNINGS=$((COUNT_WARNINGS + 1))
+        return
+    fi
+
+    if ! su - "$admin_user" -c "command -v claude" >/dev/null 2>&1; then
+        log_warning "Cannot run diagnosis: claude not found for admin user '$admin_user'"
+        COUNT_WARNINGS=$((COUNT_WARNINGS + 1))
+        return
+    fi
+
+    local home="/home/$USERNAME"
+    local failed_list="${VERIFY_FAILURES[*]}"
+
+    echo "  Launching Claude Code to diagnose failures: $failed_list"
+    echo ""
+
+    # Build diagnosis prompt
+    local prompt="You are diagnosing a failed dev environment provisioning for user '$USERNAME' on Ubuntu 22.04 (dev-vm).
+
+The following verification checks FAILED: $failed_list
+
+The user's home directory is: $home
+
+Please investigate each failure:
+1. Check if the relevant files/tools exist and their state
+2. Check permissions and ownership
+3. Identify the root cause of each failure
+4. Suggest specific fix commands
+
+Be concise. Output a short summary per failure with the fix command.
+Do NOT make any changes - only diagnose and report."
+
+    # Run claude in print mode as the admin user, with read-only tools
+    su - "$admin_user" -c "claude -p $(printf '%q' "$prompt") --dangerously-skip-permissions --allowedTools 'Bash,Read,Glob,Grep' --no-session-persistence" 2>/dev/null || {
+        log_warning "Claude Code diagnosis exited with an error"
+        COUNT_WARNINGS=$((COUNT_WARNINGS + 1))
+    }
+
+    echo ""
 }
 
 print_summary() {
@@ -464,6 +635,13 @@ print_summary() {
     echo -e "  Updated:  ${YELLOW}${COUNT_UPDATED}${NC}"
     echo -e "  Skipped:  ${BLUE}${COUNT_SKIPPED}${NC}"
     echo -e "  Warnings: ${YELLOW}${COUNT_WARNINGS}${NC}"
+
+    if [ ${#VERIFY_FAILURES[@]} -eq 0 ]; then
+        echo -e "  Verify:   ${GREEN}ALL PASSED${NC}"
+    else
+        echo -e "  Verify:   ${RED}${#VERIFY_FAILURES[@]} FAILED${NC}"
+    fi
+
     echo ""
 
     if [ "$COUNT_WARNINGS" -gt 0 ]; then
@@ -471,11 +649,12 @@ print_summary() {
     fi
 
     echo "  To login as this user: su - $USERNAME"
-    echo "  To test: su - $USERNAME -c 'node --version && claude --version'"
     echo ""
 }
 
 # --- Main ---
+
+VERIFY_FAILURES=()
 
 main() {
     parse_args "$@"
@@ -499,6 +678,8 @@ main() {
     step_ssh_key
     step_ollama
     step_permissions
+    step_verify
+    step_diagnose
     print_summary
 }
 

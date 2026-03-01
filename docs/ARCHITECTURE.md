@@ -42,22 +42,31 @@ spawn-user.sh (main entry point)
   +-- create directory structure (~/src, ~/runtime)
   +-- generate SSH key
   +-- [optional modules via flags]
-        +-- --with-ollama: OLLAMA_HOST env var
-        +-- --with-sounds: Claude Code sound hooks
-        +-- --copy-admin-credentials: shared API key
+  |     +-- --with-ollama: OLLAMA_HOST env var
+  |     +-- --with-sounds: Claude Code sound hooks
+  |     +-- --copy-admin-credentials: shared API key
+  +-- set permissions
+  +-- automatic verify (12 bash checks)
+  +-- automatic diagnose (Claude Code CLI, only on failure)
 ```
 
 ## Key Flows
 
 ### Flow 1: New user provisioning
-1. Admin runs `sudo ./scripts/spawn-user.sh <username>`
-2. Script creates Linux user, adds to docker group
-3. Copies/generates dotfiles from templates/
-4. Installs NVM + Node as the new user
-5. Installs Claude Code as the new user
-6. Creates directory structure
-7. Generates SSH key
-8. Reports summary
+1. Admin runs `sudo ./scripts/spawn-user.sh <username> --git-name "Name" --git-email "email"`
+2. Script validates root, prerequisites, network, username
+3. Creates Linux user, adds to docker group
+4. Copies/generates dotfiles from templates/ (create-if-missing)
+5. Installs NVM + Node LTS + pnpm as the new user
+6. Installs Claude Code as the new user
+7. Configures Claude Code (~/.claude/)
+8. Creates directory structure (~/src, ~/runtime, ~/.local/bin)
+9. Generates SSH ed25519 key
+10. Applies optional modules (if flags present)
+11. Sets permissions (home 750, .ssh 700, .claude 700)
+12. Runs 12 verification checks (node, npm, pnpm, claude, git, tmux, docker, dirs, ssh, permissions)
+13. If any check fails: launches Claude Code CLI to diagnose and suggest fixes
+14. Prints summary with counts and verify status
 
 ### Flow 2: Update existing user (idempotent)
 1. Admin re-runs `sudo ./scripts/spawn-user.sh <username> --update-templates`

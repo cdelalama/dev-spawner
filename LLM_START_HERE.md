@@ -36,8 +36,8 @@ Recommended reading order:
 
 Source of truth: docs/llm/HANDOFF.md.
 - Last Updated: 2026-03-01 - Claude Opus 4.6
-- Working on: Testing v0.1.0 with real users
-- Status: v0.1.0 implemented. Scripts + templates complete. Ready for testing.
+- Working on: Testing v0.1.0 with verify + diagnose
+- Status: v0.1.0 implemented. Auto-verify (bash) + auto-diagnose (Claude CLI) integrated. Testing with testuser.
 
 ## Quick Navigation
 - Project Overview: docs/PROJECT_CONTEXT.md

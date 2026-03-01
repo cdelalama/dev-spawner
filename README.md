@@ -9,6 +9,8 @@ Automated provisioning of development user environments on dev-vm.
 
 dev-spawner creates and manages development environments for multiple users on a shared Ubuntu VM. It replicates the core development tooling (Node.js, Docker, Claude Code, tmux, git) into isolated user home directories, so each person gets a fully functional dev setup without interfering with others.
 
+After provisioning, the script automatically verifies the environment (12 bash checks) and uses Claude Code CLI to diagnose any failures.
+
 Built for a family home lab where the main dev-vm (Ubuntu 22.04, 16GB RAM, 2 vCPU) serves as the shared development machine.
 
 ## Quick Start
