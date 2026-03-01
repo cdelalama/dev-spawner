@@ -1,0 +1,16 @@
+set -g mouse on
+set -g history-limit 50000
+set -g base-index 1
+setw -g pane-base-index 1
+set -g status-left-length 40
+set -g status-style "bg=#333333 fg=#ffffff"
+set -g status-left "#[bg=#4488ff fg=#ffffff bold] #S "
+set -g status-right "%H:%M "
+setw -g window-status-current-style "bg=#4488ff fg=#ffffff bold"
+setw -g window-status-current-format " #I:#W "
+setw -g window-status-format " #I:#W "
+unbind C-b
+set -g prefix C-a
+bind C-a send-prefix
+set -g allow-rename off
+setw -g automatic-rename off

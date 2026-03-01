@@ -1,0 +1,15 @@
+# Global Context for Claude Code
+
+## Language
+
+- Code and documentation: English
+- Conversation with the user: Spanish
+- Comments in code: English
+- File names: English
+
+## Workflow
+
+- Always read existing code before suggesting modifications
+- Document your changes: update relevant docs when making significant changes
+- Prefer editing existing files over creating new ones
+- Keep solutions simple and focused on what was asked
