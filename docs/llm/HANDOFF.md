@@ -80,10 +80,12 @@ Summary:
 - `((COUNT++))` with `set -e`: bash arithmetic returns exit 1 when result is 0 (post-increment from 0). Fixed by using `COUNT=$((COUNT + 1))` instead.
 
 ## Top Priorities
-1. **NOW**: Test with testuser including verify output
-2. **NEXT**: Test --update-templates backup behavior
+1. **NOW**: Test --update-templates backup behavior (with testuser)
+2. **NEXT**: Test despawn-user.sh (remove testuser)
 3. **THEN**: Provision Laura and/or Oscar
 4. **LATER**: Additional optional modules
+
+**Note:** testuser exists on dev-vm and must be removed with `despawn-user.sh` after testing is complete.
 
 ## Do Not Touch
 - Templates should not be modified without re-testing spawn-user.sh
