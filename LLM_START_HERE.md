@@ -36,8 +36,8 @@ Recommended reading order:
 
 Source of truth: docs/llm/HANDOFF.md.
 - Last Updated: 2026-03-01 - Claude Opus 4.6
-- Working on: Brainstorming - design decisions before coding
-- Status: v0.1.0. Project just created, resolving design choices.
+- Working on: Testing v0.1.0 with real users
+- Status: v0.1.0 implemented. Scripts + templates complete. Ready for testing.
 
 ## Quick Navigation
 - Project Overview: docs/PROJECT_CONTEXT.md

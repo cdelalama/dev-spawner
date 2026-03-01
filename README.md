@@ -20,7 +20,16 @@ Built for a family home lab where the main dev-vm (Ubuntu 22.04, 16GB RAM, 2 vCP
 ### Usage
 ```bash
 # Create a new dev user
-sudo ./scripts/spawn-user.sh <username>
+sudo ./scripts/spawn-user.sh <username> --git-name "Full Name" --git-email "email@example.com"
+
+# With optional modules
+sudo ./scripts/spawn-user.sh <username> --git-name "Name" --git-email "email" --with-ollama --copy-admin-credentials
+
+# Update existing user's dotfiles (creates .bak backups)
+sudo ./scripts/spawn-user.sh <username> --update-templates
+
+# Remove a user
+sudo ./scripts/despawn-user.sh <username>
 ```
 
 ## Documentation

@@ -27,12 +27,13 @@ A provisioning script (bash) that:
 Shared system-level tools (Docker, Go, Python) are NOT installed per-user -- they're already available system-wide.
 
 ## Current Status (2026-03-01)
-Project just created. Brainstorming phase -- deciding on key design choices before writing code.
+v0.1.0 implemented. spawn-user.sh and despawn-user.sh complete with all templates. Ready for testing with real users.
 
 ## Upcoming Milestones
-1. Brainstorming: resolve all open design decisions - 2026-03-01
-2. v0.1.0: Core provisioning script - TBD
-3. v0.2.0: Idempotent updates + de-provisioning - TBD
+1. ~~Brainstorming: resolve all open design decisions~~ - DONE 2026-03-01
+2. ~~v0.1.0: Core provisioning + teardown scripts~~ - DONE 2026-03-01
+3. Testing: validate with testuser, then Laura/Oscar - IN PROGRESS
+4. v0.2.0: Additional optional modules (doppler, etc.) - TBD
 
 ## References
 - Infrastructure docs: ~/src/home-infra/docs/

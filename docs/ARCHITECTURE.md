@@ -41,10 +41,10 @@ spawn-user.sh (main entry point)
   |     +-- .claude/settings.json
   +-- create directory structure (~/src, ~/runtime)
   +-- generate SSH key
-  +-- [optional modules]
-        +-- ollama env config
-        +-- doppler setup
-        +-- additional tools
+  +-- [optional modules via flags]
+        +-- --with-ollama: OLLAMA_HOST env var
+        +-- --with-sounds: Claude Code sound hooks
+        +-- --copy-admin-credentials: shared API key
 ```
 
 ## Key Flows
@@ -60,11 +60,11 @@ spawn-user.sh (main entry point)
 8. Reports summary
 
 ### Flow 2: Update existing user (idempotent)
-1. Admin re-runs `sudo ./scripts/spawn-user.sh <username>`
-2. Script detects user exists
-3. Updates dotfiles (preserving user customizations?)
-4. Updates tools if needed (NVM, Node, Claude Code)
-5. Reports what changed
+1. Admin re-runs `sudo ./scripts/spawn-user.sh <username> --update-templates`
+2. Script detects user exists, skips creation
+3. Dotfiles: without `--update-templates`, existing files are SKIPPED (preserving customizations). With the flag, existing files are backed up (`.bak.<timestamp>`) and overwritten
+4. Tools (NVM, Node, Claude): always skipped if already installed (no auto-update)
+5. Reports what was created, updated, or skipped
 
 ## Storage & Data Layout
 
